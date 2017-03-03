@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 
-zone=$1
-resolver=$2
-alwaysFailingDomain=$3
+
+# Parse the input options
+while getopts ":z:r:f:" opt; do
+  case $opt in
+    z)
+      zone=$OPTARG
+      ;;
+    r)
+      resolver=$OPTARG
+      ;;
+    f)
+      alwaysFailingDomain=$OPTARG
+      ;;
+  esac
+done
+
 
 # Check if we got a zone to validate - fail hard if not
 if [[ -z $zone ]]; then
