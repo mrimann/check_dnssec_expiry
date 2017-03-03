@@ -51,8 +51,8 @@ if [[ -z $checkDomainResolvableWithDnssecEnabledResolver ]]; then
 		echo "CRITICAL: The domain $zone can be validated without DNSSEC validation - but will fail on resolvers that do validate DNSSEC."
 		exit 2
 	else
-		echo "WARNING: The domain $zone cannot be resolved via $resolver as resolver while DNSSEC validation is active."
-		exit 1
+		echo "CRITICAL: The domain $zone cannot be resolved via $resolver as resolver while DNSSEC validation is active."
+		exit 2
 	fi
 #else
 #	echo "OK: $zone is resolvable on $resolver - lucky you!"
