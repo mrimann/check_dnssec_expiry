@@ -82,9 +82,9 @@ remainingLifetimeOfSignature=$( expr $expiryDateOfSignature - $now)
 #echo "diff   = $remainingLifetimeOfSignature"
 
 if [[ $remainingLifetimeOfSignature -lt 86400 ]]; then
-	echo "WARNING: DNSSEC signature for $zone is short before expiration!"
+	echo "WARNING: DNSSEC signature for $zone is short before expiration! | sinature_lifetime=$remainingLifetimeOfSignature"
 	exit 1
 else
-	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired"
+	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired | sinature_lifetime=$remainingLifetimeOfSignature"
 	exit 0
 fi
