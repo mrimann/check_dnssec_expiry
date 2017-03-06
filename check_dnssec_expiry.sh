@@ -75,9 +75,15 @@ if [[ -z $checkValidityOfExpirationTimestamp ]]; then
 fi
 
 # Check, how far in the future that expiration date is.
-now=$(date +"%Y%m%d%H%M%S")
-remainingLifetimeOfSignature=$( expr $expiryDateOfSignature - $now)
-#echo "expiry = $expiryDateOfSignature"
+expiryDateAsString="${expiryDateOfSignature:0:4}-${expiryDateOfSignature:4:2}-${expiryDateOfSignature:6:2} ${expiryDateOfSignature:8:2}:${expiryDateOfSignature:10:2}:00"
+expiryDateOfSignatureAsUnixTime=$( date -u -d "$expiryDateAsString" +"%s" 2&>/dev/null )
+if [[ $? -ne 0 ]]; then
+	# if we come to this place, something must have gone wrong converting the date-string. This can happen as e.g. MacOS X and Linux don't behave the same way in this topic...
+	expiryDateOfSignatureAsUnixTime=$( date -j -u -f "%Y-%m-%d %T" "$expiryDateAsString" +"%s" )
+fi
+now=$(date +"%s")
+remainingLifetimeOfSignature=$( expr $expiryDateOfSignatureAsUnixTime - $now)
+#echo "expiry = $expiryDateOfSignatureAsUnixTime"
 #echo "now    = $now"
 #echo "diff   = $remainingLifetimeOfSignature"
 
