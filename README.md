@@ -49,12 +49,14 @@ In the above snippet, replace ZONE with the zone to be checked, e.g. "example.or
 
 
 ## Command Line Options:
-Option | Triggers what? | Mandatory? | Default value
--z | Sets the zone to validate, e.g. "example.org" | yes | n/a
--w | Sets the warning percentage value regarding the remainig lifetime of the signature | no | 20
--c | Sets the critical percentage value regarding the remainig lifetime of the signature | no | 10
--r | Sets the resolver to use | no | 8.8.8.8
--f | Sets the always failing domain (used to verify the proper function of the resolving server | no | dnssec-failed.org
+
+| Option | Triggers what? | Mandatory? | Default value |
+| --- | --- | --- | --- |
+| -z | Sets the zone to validate, e.g. "example.org" | yes | n/a |
+| -w | Sets the warning percentage value regarding the remainig lifetime of the signature | no | 20 |
+| -c | Sets the critical percentage value regarding the remainig lifetime of the signature | no | 10 |
+| -r | Sets the resolver to use | no | 8.8.8.8 |
+| -f | Sets the always failing domain (used to verify the proper function of the resolving server | no | dnssec-failed.org |
 
 
 ## TODO:
