@@ -2,10 +2,16 @@
 
 
 # Parse the input options
-while getopts ":z:r:f:" opt; do
+while getopts ":z:w:c:r:f:" opt; do
   case $opt in
     z)
       zone=$OPTARG
+      ;;
+    w)
+      warning=$OPTARG
+      ;;
+    c)
+      critical=$OPTARG
       ;;
     r)
       resolver=$OPTARG
@@ -22,6 +28,15 @@ if [[ -z $zone ]]; then
 	echo "Missing zone to test - please provide a zone via the -z parameter."
 	exit 3
 fi
+
+# Check if we got warning/critical percentage values, use defaults if not
+if [[ -z $warning ]]; then
+	warning=20
+fi
+if [[ -z $critical ]]; then
+	critical=10
+fi
+
 
 # Use Google's 8.8.8.8 resolver as fallback if none is provided
 if [[ -z $resolver ]]; then
@@ -74,23 +89,50 @@ if [[ -z $checkValidityOfExpirationTimestamp ]]; then
 	echo 3
 fi
 
-# Check, how far in the future that expiration date is.
+inceptionDateOfSignature=$( dig @$resolver A $zone +dnssec | grep RRSIG | awk '{print $10}')
+checkValidityOfInceptionTimestamp=$( echo $inceptionDateOfSignature | egrep '[0-9]{14}')
+if [[ -z $checkValidityOfInceptionTimestamp ]]; then
+	echo "UNKNOWN: Something went wrong while checking the inception date of the RRSIG entry - investigate please".
+	echo 3
+fi
+
+# Fiddle out the expiry and inceptiondate of the signature to have a base to do some calculations afterwards
 expiryDateAsString="${expiryDateOfSignature:0:4}-${expiryDateOfSignature:4:2}-${expiryDateOfSignature:6:2} ${expiryDateOfSignature:8:2}:${expiryDateOfSignature:10:2}:00"
 expiryDateOfSignatureAsUnixTime=$( date -u -d "$expiryDateAsString" +"%s" 2>/dev/null )
 if [[ $? -ne 0 ]]; then
 	# if we come to this place, something must have gone wrong converting the date-string. This can happen as e.g. MacOS X and Linux don't behave the same way in this topic...
 	expiryDateOfSignatureAsUnixTime=$( date -j -u -f "%Y-%m-%d %T" "$expiryDateAsString" +"%s" )
 fi
-now=$(date +"%s")
-remainingLifetimeOfSignature=$( expr $expiryDateOfSignatureAsUnixTime - $now)
-#echo "expiry = $expiryDateOfSignatureAsUnixTime"
-#echo "now    = $now"
-#echo "diff   = $remainingLifetimeOfSignature"
+inceptionDateAsString="${inceptionDateOfSignature:0:4}-${inceptionDateOfSignature:4:2}-${inceptionDateOfSignature:6:2} ${inceptionDateOfSignature:8:2}:${inceptionDateOfSignature:10:2}:00"
+inceptionDateOfSignatureAsUnixTime=$( date -u -d "$inceptionDateAsString" +"%s" 2>/dev/null )
+if [[ $? -ne 0 ]]; then
+	# if we come to this place, something must have gone wrong converting the date-string. This can happen as e.g. MacOS X and Linux don't behave the same way in this topic...
+	inceptionDateOfSignatureAsUnixTime=$( date -j -u -f "%Y-%m-%d %T" "$inceptionDateAsString" +"%s" )
+fi
 
-if [[ $remainingLifetimeOfSignature -lt 86400 ]]; then
-	echo "WARNING: DNSSEC signature for $zone is short before expiration! | sinature_lifetime=$remainingLifetimeOfSignature"
+
+# calculate the remaining lifetime of the signature
+now=$(date +"%s")
+totalLifetime=$( expr $expiryDateOfSignatureAsUnixTime - $inceptionDateOfSignatureAsUnixTime)
+remainingLifetimeOfSignature=$( expr $expiryDateOfSignatureAsUnixTime - $now)
+remainingPercentage=$( expr "100" \* $remainingLifetimeOfSignature / $totalLifetime)
+#echo "inception    = $inceptionDateOfSignatureAsUnixTime"
+#echo "expiry       = $expiryDateOfSignatureAsUnixTime"
+#echo "total lt     = $totalLifetime"
+
+#echo "now          = $now"
+#echo "remaining lt = $remainingLifetimeOfSignature"
+#echo "remaining %  = $remainingPercentage"
+
+
+# determine if we need to alert, and if so, how loud to cry, depending on warning/critial threshholds provided
+if [[ $remainingPercentage -lt $critical ]]; then
+	echo "CRITICAL: DNSSEC signature for $zone is very short before expiration! ($remainingPercentage% remaining) | sig_lifetime=$remainingLifetimeOfSignature  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+	exit 2
+elif [[ $remainingPercentage -lt $warning ]]; then
+	echo "WARNING: DNSSEC signature for $zone is short before expiration! ($remainingPercentage% remaining) | sig_lifetime=$remainingLifetimeOfSignature  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 1
 else
-	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired | sinature_lifetime=$remainingLifetimeOfSignature"
+	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired ($remainingPercentage% remaining) | sig_lifetime=$remainingLifetimeOfSignature  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 0
 fi
