@@ -67,7 +67,7 @@ if [[ -z $checkZoneIsSignedAtAll ]]; then
 fi
 
 # Get the RRSIG entry and extract the date out of it
-expiryDateOfSignature=$( dig @$resolver RRSIG $zone +short | egrep '^A\s' | awk '{print $5}')
+expiryDateOfSignature=$( dig @$resolver A $zone +dnssec | grep RRSIG | awk '{print $9}')
 checkValidityOfExpirationTimestamp=$( echo $expiryDateOfSignature | egrep '[0-9]{14}')
 if [[ -z $checkValidityOfExpirationTimestamp ]]; then
 	echo "UNKNOWN: Something went wrong while checking the expiration of the RRSIG entry - investigate please".
