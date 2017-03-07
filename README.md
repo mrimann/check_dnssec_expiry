@@ -7,7 +7,11 @@ It covers the following cases:
 - Resolver that doesn't validate DNSSEC signatures: emits a WARNING since the environment for the other check is broken and needs to be fixed first (which doesn't imply the signatures of that zone to be broken). This test is executed against the zone `dnssec-failed.org` but you can override this and provide your own always-failing zone
 - Unsigned zones: will emit a WARNING, as we expect this check to only be actively executed against DNSSEC enabled/signed zones
 - Broken signature: will emit a CRITICAL, independent of whether the zone could be resolvable on a resolver without DNSSEC validation
-- Expiry date of the RRSIG answer: emits a WARNING in case the expiry date is coming close (alerts in case the remaining lifetime is <86400s)
+- Expiry date of the RRSIG answer: the remaining lifetime is calculated and depending on the remaining % of the total lifetime, an alert can be generated
+  - emits a CRITICAL if the remaining percentage is < 10%
+  - emits a WARNING if the remaining percentage is < 20%
+  - emits an OK if none of the above match
+- is configurable via command line options, see table below
 
 
 ## Installation:
