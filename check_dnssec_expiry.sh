@@ -57,10 +57,10 @@ if [[ -z $checkResolverDoesDnssecValidation ]]; then
 fi
 
 # Check if the resolver delivers an answer for the domain to test
-checkDomainResolvableWithDnssecEnabledResolver=$(dig +short @${resolver} A $zone)
+checkDomainResolvableWithDnssecEnabledResolver=$(dig +short @${resolver} SOA $zone)
 if [[ -z $checkDomainResolvableWithDnssecEnabledResolver ]]; then
 
-	checkDomainResolvableWithDnssecValidationExplicitelyDisabled=$(dig +short @${resolver} A $zone +cd)
+	checkDomainResolvableWithDnssecValidationExplicitelyDisabled=$(dig +short @${resolver} SOA $zone +cd)
 
 	if [[ ! -z $checkDomainResolvableWithDnssecValidationExplicitelyDisabled ]]; then
 		echo "CRITICAL: The domain $zone can be validated without DNSSEC validation - but will fail on resolvers that do validate DNSSEC."
@@ -82,14 +82,14 @@ if [[ -z $checkZoneIsSignedAtAll ]]; then
 fi
 
 # Get the RRSIG entry and extract the date out of it
-expiryDateOfSignature=$( dig @$resolver A $zone +dnssec | grep RRSIG | awk '{print $9}')
+expiryDateOfSignature=$( dig @$resolver SOA $zone +dnssec | grep RRSIG | awk '{print $9}')
 checkValidityOfExpirationTimestamp=$( echo $expiryDateOfSignature | egrep '[0-9]{14}')
 if [[ -z $checkValidityOfExpirationTimestamp ]]; then
 	echo "UNKNOWN: Something went wrong while checking the expiration of the RRSIG entry - investigate please".
 	echo 3
 fi
 
-inceptionDateOfSignature=$( dig @$resolver A $zone +dnssec | grep RRSIG | awk '{print $10}')
+inceptionDateOfSignature=$( dig @$resolver SOA $zone +dnssec | grep RRSIG | awk '{print $10}')
 checkValidityOfInceptionTimestamp=$( echo $inceptionDateOfSignature | egrep '[0-9]{14}')
 if [[ -z $checkValidityOfInceptionTimestamp ]]; then
 	echo "UNKNOWN: Something went wrong while checking the inception date of the RRSIG entry - investigate please".
