@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# check_dnssec_expiry.sh
+#
+# Copyright 2017 by Mario Rimann <mario@rimann.org>
+# Licensed under the permissive MIT license, see LICENSE.md
+#
+# Development of this script was partially sponsored by my
+# employer internezzo, see http://www.internezzo.ch
+#
+# If this script helps you to make your work easier, please consider
+# to give feedback or do something good, see https://rimann.org/support
 
 # Parse the input options
 while getopts ":z:w:c:r:f:" opt; do
