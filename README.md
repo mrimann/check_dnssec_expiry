@@ -32,11 +32,11 @@ To add the check to your Icinga installation, first add the following command de
 And second, add a service definiton *per zone* to e.g. `/etc/icinga/objects/services.cfg`:
 
 	define service {
-		use						critical-service
-		name					check_dnssec_expiry ZONE
-		description				DNSSEC ZONE
-		host_name				NAMESERVER
-		check_command			check_dnssec_expiry!ZONE
+		use			critical-service
+		name			check_dnssec_expiry ZONE
+		description		DNSSEC ZONE
+		host_name		NAMESERVER
+		check_command		check_dnssec_expiry!ZONE
 		normal_check_interval	60
 		retry_check_interval	5
 	}
