@@ -62,7 +62,7 @@ fi
 # Check the resolver to properly validate DNSSEC at all (if he doesn't, every further test is futile and a waste of bandwith)
 checkResolverDoesDnssecValidation=$(dig +nocmd +nostats +noquestion $alwaysFailingDomain @${resolver} | grep "opcode: QUERY" | grep "status: SERVFAIL")
 if [[ -z $checkResolverDoesDnssecValidation ]]; then
-	echo "WARNING: Resolver seems to not validate DNSSEC signatures - going further seems useless right now."
+	echo "WARNING: Resolver seems to not validate DNSSEC signatures - going further seems hopeless right now."
 	exit 1
 fi
 
@@ -83,9 +83,9 @@ fi
 
 # Check if the domain is DNSSEC signed at all
 # (and emerge a WARNING in that case, since this check is about testing DNSSEC being "present" and valid which is not the case for an unsigned zone)
-checkZoneIsSignedAtAll=$( dig $zone @$resolver DS +short )
-if [[ -z $checkZoneIsSignedAtAll ]]; then
-	echo "WARNING: Zone $zone seems to be unsigned (= resolvable, but no DNSSEC involved at all)"
+checkZoneItselfIsSignedAtAll=$( dig $zone @$resolver DS +short )
+if [[ -z $checkZoneItselfIsSignedAtAll ]]; then
+	echo "WARNING: Zone $zone seems to be unsigned itself (= resolvable, but no DNSSEC involved at all)"
 	exit 1
 fi
 
