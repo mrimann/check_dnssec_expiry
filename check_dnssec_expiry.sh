@@ -69,8 +69,6 @@ if [[ -z $checkDomainResolvableWithDnssecEnabledResolver ]]; then
 		echo "CRITICAL: The domain $zone cannot be resolved via $resolver as resolver while DNSSEC validation is active."
 		exit 2
 	fi
-#else
-#	echo "OK: $zone is resolvable on $resolver - lucky you!"
 fi
 
 # Check if the domain is DNSSEC signed at all
@@ -116,13 +114,6 @@ now=$(date +"%s")
 totalLifetime=$( expr $expiryDateOfSignatureAsUnixTime - $inceptionDateOfSignatureAsUnixTime)
 remainingLifetimeOfSignature=$( expr $expiryDateOfSignatureAsUnixTime - $now)
 remainingPercentage=$( expr "100" \* $remainingLifetimeOfSignature / $totalLifetime)
-#echo "inception    = $inceptionDateOfSignatureAsUnixTime"
-#echo "expiry       = $expiryDateOfSignatureAsUnixTime"
-#echo "total lt     = $totalLifetime"
-
-#echo "now          = $now"
-#echo "remaining lt = $remainingLifetimeOfSignature"
-#echo "remaining %  = $remainingPercentage"
 
 
 # determine if we need to alert, and if so, how loud to cry, depending on warning/critial threshholds provided
