@@ -81,13 +81,31 @@ if [[ -z $checkDomainResolvableWithDnssecEnabledResolver ]]; then
 	fi
 fi
 
-# Check if the domain is DNSSEC signed at all
+# Check if the domain is DNSSEC signed at all - This check is done in multiple parts, see below:
 # (and emerge a WARNING in that case, since this check is about testing DNSSEC being "present" and valid which is not the case for an unsigned zone)
+
+# get first authoritive nameserver for the zone to check if it delivers DNSKEY ansers for that zone
+firstAuthoritiveNameserver=$( dig NS $zone @$resolver +short | head -n1 )
+
+# check if the parent authoritive server says the zone is signed
+checkZoneHasSignaturesFromAbove=$( dig @$firstAuthoritiveNameserver DNSKEY $zone +short )
+
+# check if the zone itself seems to be signed at all
 checkZoneItselfIsSignedAtAll=$( dig $zone @$resolver DS +short )
+
+
+# now check if the zone itself is signed, but the authoritive nameserver doesn't know that
+if [[ ! -z $checkZoneHasSignaturesFromAbove ]] && [[ -z $checkZoneItselfIsSignedAtAll ]]; then
+	echo "WARNING: Zone $zone seems to be signed itself, but has no keys set at the registry (= resolvable, but no DNSSEC involved at all)"
+	exit 1
+fi
+
+# check if the zone itself is not signed at all
 if [[ -z $checkZoneItselfIsSignedAtAll ]]; then
 	echo "WARNING: Zone $zone seems to be unsigned itself (= resolvable, but no DNSSEC involved at all)"
 	exit 1
 fi
+
 
 # Get the RRSIG entry and extract the date out of it
 expiryDateOfSignature=$( dig @$resolver SOA $zone +dnssec | grep RRSIG | awk '{print $9}')
