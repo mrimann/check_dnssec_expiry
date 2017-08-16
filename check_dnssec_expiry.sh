@@ -92,13 +92,11 @@ fi
 
 # Check if there are multiple RRSIG responses and check them one after the other
 rrsigEntries=$( dig @$resolver SOA $zone +dnssec | grep RRSIG )
-echo rrsigEntries
 if [[ -z $rrsigEntries ]]; then
         echo "CRITICAL: There is no RRSIG for the SOA of your zone."
         exit 2
 else
 	while read -r rrsig; do
-		echo $rrsig
 		# Get the RRSIG entry and extract the date out of it
 		expiryDateOfSignature=$( echo $rrsig | awk '{print $9}')
 		checkValidityOfExpirationTimestamp=$( echo $expiryDateOfSignature | egrep '[0-9]{14}')
