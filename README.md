@@ -11,6 +11,7 @@ It covers the following cases:
   - emits a CRITICAL if the remaining percentage is < 10%
   - emits a WARNING if the remaining percentage is < 20%
   - emits an OK if none of the above match
+- If there are multiple RRSIG entries with overlapping valitity time-frames, we're fine, if at least one of them fulfills the minimum remaining lifetime check
 - is configurable via command line options, see table below
 
 
