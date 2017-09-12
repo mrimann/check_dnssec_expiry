@@ -1,6 +1,6 @@
 # check_dnssec_expiry - Icinga / Nagios Plugin to validate DNSSEC of a DNS-Zone
 
-Goal of this plugin is to enable DNSSEC validation for a given zone, based on a DNSSEC validation resolver.
+Goal of this plugin is to monitor DNSSEC validation for a given zone using a DNSSEC validating resolver.
 
 It covers the following cases:
 
@@ -11,7 +11,7 @@ It covers the following cases:
   - emits a CRITICAL if the remaining percentage is < 10%
   - emits a WARNING if the remaining percentage is < 20%
   - emits an OK if none of the above match
-- If there are multiple RRSIG entries with overlapping valitity time-frames, we're fine, if at least one of them fulfills the minimum remaining lifetime check
+- If there are multiple RRSIG entries with overlapping validity time-frames, we're fine, if at least one of them fulfills the minimum remaining lifetime check
 - is configurable via command line options, see table below
 
 
