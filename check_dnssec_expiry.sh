@@ -36,7 +36,7 @@ done
 # Check if dig is available at all - fail hard if not
 pathToDig=$( which dig )
 if [[ ! -e $pathToDig ]]; then
-	echo "No executable of dig found, canno proceed without dig. Sorry!"
+	echo "No executable of dig found, cannot proceed without dig. Sorry!"
 	exit 1
 fi
 
