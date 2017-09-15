@@ -11,8 +11,27 @@
 # If this script helps you to make your work easier, please consider
 # to give feedback or do something good, see https://rimann.org/support
 
+usage() {
+	cat - >&2 << _EOT_
+usage $0 -z <zone> [-w <warning %>] [-c <critical %>] [-r <resolver>] [-f <always failing domain>]
+
+	-z <zone>
+		specify zone to check
+	-w <critical %>
+		warning time left percentage
+	-c <critical %>
+		critical time left percentage
+	-r <resolver>
+		specify which resolver to use.
+	-f <always failing domain>
+		specify a domain that will always fail DNSSEC.
+		used to test if DNSSEC is supported in used tools.
+_EOT_
+	exit 255
+}
+
 # Parse the input options
-while getopts ":z:w:c:r:f:" opt; do
+while getopts ":z:w:c:r:f:h" opt; do
   case $opt in
     z)
       zone=$OPTARG
@@ -29,6 +48,8 @@ while getopts ":z:w:c:r:f:" opt; do
     f)
       alwaysFailingDomain=$OPTARG
       ;;
+    h)
+      usage ;;
   esac
 done
 
