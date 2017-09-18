@@ -15,7 +15,7 @@ It covers the following cases:
 - is configurable via command line options, see table below
 
 
-## Installation:
+## Installation (Icinga):
 
 Clone this repository into the directory where you have all your other plugins, for Icinga on Ubuntu, this is probably `/usr/lib/nagios/plugins` but could be somewhere else on your system:
 
@@ -46,6 +46,52 @@ And second, add a service definiton *per zone* to e.g. `/etc/icinga/objects/serv
 In the above snippet, replace ZONE with the zone to be checked, e.g. "example.org" and NAMESERVER with your Nameserver (basically it doesn't matter since the check is executed on the Icinga host itself in this basic setup).
 
 **Please adapt the above snippets to your needs!!!** (and refer to the documentation of your monitoring system for further details)
+
+
+## Installation (Icinga2):
+Clone this repository into the directory where you have all your other plugins, for Icinga on Ubuntu, this is probably `/usr/lib/nagios/plugins` but could be somewhere else on your system:
+
+	cd /usr/lib/nagios/plugins
+	git clone https://github.com/mrimann/check_dnssec_expiry.git
+
+To add the command check to your Icinga2 installation, first add the following command definition e.g. to `/etc/icinga2/conf.d/commands.conf`:
+
+	# 'check_dnssec_expiry' command definition
+	object CheckCommand "dnssec_expiry" {
+      import "plugin-check-command"
+      command = [ PluginDir + "/check_dnssec_expiry.sh" ]
+    
+      arguments = {
+        "-z" = {
+         required = true
+         value = "$zone$"
+         }
+       "-w" = "$dnssec_warn$"    // Default = 20
+       "-c" = "$dnssec_crit$"    // Default = 10
+       "-r" = "$resolver$"       // Default = 8.8.8.8
+       "-f" = "$failing$"        // Sets the always failing domain (to verify function of resolver). Default = dnssec-failed.org
+      }
+    }
+
+Then add a service definition e.g. to `/etc/icinga2/conf.d/services.conf`:
+
+    apply Service "dnssec" for (zone in host.vars.dnssec_zones) {
+        import "generic-service"
+        vars.zone = zone
+        vars.resolver = "127.0.0.1"
+        display_name = "DNSSEC signature expiring"
+        check_command = "dnssec_expiry"
+        }
+
+And finally, add a list of the zones to be checked to the hosts definition e.g. `/etc/icinga2/conf.d/hosts.conf`:
+
+    /* DNSSEC checks -- https://github.com/mrimann/check_dnssec_expiry */
+    vars.dnssec_zones = ["zone1", "zone2", "zone3" ]
+
+In the above snippet, replace zone1, zone2, zone3 with the zones to be checked.
+You can set vars.resolver to the address of a resolver to use, etc.
+
+**Please adapt the above snippets to your needs!!!** (and refer to the documentation of your monitoring system for further details).
 
 
 
