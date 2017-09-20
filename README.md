@@ -99,6 +99,7 @@ You can set vars.resolver to the address of a resolver to use, etc.
 
 | Option | Triggers what? | Mandatory? | Default value |
 | --- | --- | --- | --- |
+| -h | Renders the help / usage information | no | n/a |
 | -z | Sets the zone to validate, e.g. "example.org" | yes | n/a |
 | -w | Sets the warning percentage value regarding the remainig lifetime of the signature | no | 20 |
 | -c | Sets the critical percentage value regarding the remainig lifetime of the signature | no | 10 |
