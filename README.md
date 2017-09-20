@@ -120,11 +120,12 @@ In case you want to discuss a new feature with me, just send me an [e-mail](mail
 
 
 ### Contributors
-Thanks for your support!
-- André Keller from [www.vshn.ch](www.vshn.ch)
-- Oli Schacher from Switch CERT [www.switch.ch](http://www.switch.ch/)
+Thanks for your support! (in chronological order)
+- André Keller from [VSHN](www.vshn.ch)
+- Oli Schacher from [Switch CERT](http://www.switch.ch/)
+- Jan-Piet Mens [www.jpmens.net](http://jpmens.net/)
 - Warren Kumari
-
+- Rob J. Epping
 
 ## License
 
