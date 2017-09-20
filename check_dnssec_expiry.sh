@@ -64,6 +64,7 @@ fi
 # Check if we got a zone to validate - fail hard if not
 if [[ -z $zone ]]; then
 	echo "Missing zone to test - please provide a zone via the -z parameter."
+	usage
 	exit 3
 fi
 
