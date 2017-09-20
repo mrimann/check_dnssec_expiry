@@ -117,6 +117,14 @@ Feel free to [file new issues](https://github.com/mrimann/check_dnssec_expiry/is
 
 In case you want to discuss a new feature with me, just send me an [e-mail](mailto:mario@rimann.org).
 
+
+### Contributors
+Thanks for your support!
+- André Keller from [www.vshn.ch](www.vshn.ch)
+- Oli Schacher from Switch CERT [www.switch.ch](http://www.switch.ch/)
+- Warren Kumari
+
+
 ## License
 
 Licensed under the permissive [MIT license](http://opensource.org/licenses/MIT) - have fun with it!
