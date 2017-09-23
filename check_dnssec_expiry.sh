@@ -175,12 +175,12 @@ fi
 
 # determine if we need to alert, and if so, how loud to cry, depending on warning/critial threshholds provided
 if [[ $maxRemainingPercentage -lt $critical ]]; then
-	echo "CRITICAL: DNSSEC signature for $zone is very short before expiration! ($maxRemainingLifetime% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+	echo "CRITICAL: DNSSEC signature for $zone is very short before expiration! ($maxRemainingPercentage% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 2
 elif [[ $remainingPercentage -lt $warning ]]; then
-	echo "WARNING: DNSSEC signature for $zone is short before expiration! ($maxRemainingLifetime% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+	echo "WARNING: DNSSEC signature for $zone is short before expiration! ($maxRemainingPercentage% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 1
 else
-	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired ($maxRemainingLifetime% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired ($maxRemainingPercentage% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 0
 fi
