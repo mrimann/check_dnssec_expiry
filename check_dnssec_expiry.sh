@@ -77,9 +77,9 @@ if [[ -z $critical ]]; then
 fi
 
 
-# Use Google's 8.8.8.8 resolver as fallback if none is provided
-if [[ -z $resolver ]]; then
-	resolver="8.8.8.8"
+# Use resolver when one is specified. Otherwise dig will use local resolver
+if [[ -n $resolver ]]; then
+	resolver="@${resolver}"
 fi
 
 if [[ -z $alwaysFailingDomain ]]; then
@@ -89,17 +89,17 @@ fi
 
 
 # Check the resolver to properly validate DNSSEC at all (if he doesn't, every further test is futile and a waste of bandwith)
-checkResolverDoesDnssecValidation=$(dig +nocmd +nostats +noquestion $alwaysFailingDomain @${resolver} | grep "opcode: QUERY" | grep "status: SERVFAIL")
+checkResolverDoesDnssecValidation=$(dig +nocmd +nostats +noquestion $alwaysFailingDomain ${resolver} | grep "opcode: QUERY" | grep "status: SERVFAIL")
 if [[ -z $checkResolverDoesDnssecValidation ]]; then
 	echo "WARNING: Resolver seems to not validate DNSSEC signatures - going further seems hopeless right now."
 	exit 1
 fi
 
 # Check if the resolver delivers an answer for the domain to test
-checkDomainResolvableWithDnssecEnabledResolver=$(dig +short @${resolver} SOA $zone)
+checkDomainResolvableWithDnssecEnabledResolver=$(dig +short ${resolver} SOA $zone)
 if [[ -z $checkDomainResolvableWithDnssecEnabledResolver ]]; then
 
-	checkDomainResolvableWithDnssecValidationExplicitelyDisabled=$(dig +short @${resolver} SOA $zone +cd)
+	checkDomainResolvableWithDnssecValidationExplicitelyDisabled=$(dig +short ${resolver} SOA $zone +cd)
 
 	if [[ ! -z $checkDomainResolvableWithDnssecValidationExplicitelyDisabled ]]; then
 		echo "CRITICAL: The domain $zone can be validated without DNSSEC validation - but will fail on resolvers that do validate DNSSEC."
@@ -112,7 +112,7 @@ fi
 
 # Check if the domain is DNSSEC signed at all
 # (and emerge a WARNING in that case, since this check is about testing DNSSEC being "present" and valid which is not the case for an unsigned zone)
-checkZoneItselfIsSignedAtAll=$( dig $zone @$resolver DS +short )
+checkZoneItselfIsSignedAtAll=$( dig $zone $resolver DS +short )
 if [[ -z $checkZoneItselfIsSignedAtAll ]]; then
 	echo "WARNING: Zone $zone seems to be unsigned itself (= resolvable, but no DNSSEC involved at all)"
 	exit 1
@@ -121,7 +121,7 @@ fi
 
 # Check if there are multiple RRSIG responses and check them one after the other
 now=$(date +"%s")
-rrsigEntries=$( dig @$resolver SOA $zone +dnssec | grep RRSIG )
+rrsigEntries=$( dig $resolver SOA $zone +dnssec | grep RRSIG )
 if [[ -z $rrsigEntries ]]; then
         echo "CRITICAL: There is no RRSIG for the SOA of your zone."
         exit 2
