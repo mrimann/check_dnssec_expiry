@@ -60,7 +60,7 @@ To add the command check to your Icinga2 installation, first add the following c
 	object CheckCommand "dnssec_expiry" {
       import "plugin-check-command"
       command = [ PluginDir + "/check_dnssec_expiry.sh" ]
-    
+
       arguments = {
         "-z" = {
          required = true
@@ -105,6 +105,7 @@ You can set vars.resolver to the address of a resolver to use, etc.
 | -c | Sets the critical percentage value regarding the remainig lifetime of the signature | no | 10 |
 | -r | Sets the resolver to use | no | 8.8.8.8 |
 | -f | Sets the always failing domain (used to verify the proper function of the resolving server | no | dnssec-failed.org |
+| -t | Sets the DNS record type to validate, e.g. "A" | no | SOA |
 
 
 ## TODO:
