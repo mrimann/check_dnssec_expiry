@@ -26,12 +26,15 @@ usage $0 -z <zone> [-w <warning %>] [-c <critical %>] [-r <resolver>] [-f <alway
 	-f <always failing domain>
 		specify a domain that will always fail DNSSEC.
 		used to test if DNSSEC is supported in used tools.
+	-t <DNS record type to check>
+		specify a DNS record type for calculating the remaining lifetime.
+		For example SOA, A, etc.
 _EOT_
 	exit 255
 }
 
 # Parse the input options
-while getopts ":z:w:c:r:f:h" opt; do
+while getopts ":z:w:c:r:f:h:t:" opt; do
   case $opt in
     z)
       zone=$OPTARG
@@ -47,6 +50,9 @@ while getopts ":z:w:c:r:f:h" opt; do
       ;;
     f)
       alwaysFailingDomain=$OPTARG
+      ;;
+    t)
+      recordType=$OPTARG
       ;;
     h)
       usage ;;
@@ -86,7 +92,10 @@ if [[ -z $alwaysFailingDomain ]]; then
 	alwaysFailingDomain="dnssec-failed.org"
 fi
 
-
+# Use SOA record type as fallback
+if [[ -z $recordType ]]; then
+        recordType="SOA"
+fi
 
 # Check the resolver to properly validate DNSSEC at all (if he doesn't, every further test is futile and a waste of bandwith)
 checkResolverDoesDnssecValidation=$(dig +nocmd +nostats +noquestion $alwaysFailingDomain @${resolver} | grep "opcode: QUERY" | grep "status: SERVFAIL")
@@ -121,7 +130,7 @@ fi
 
 # Check if there are multiple RRSIG responses and check them one after the other
 now=$(date +"%s")
-rrsigEntries=$( dig @$resolver SOA $zone +dnssec | grep RRSIG )
+rrsigEntries=$( dig @$resolver $recordType $zone +dnssec | grep RRSIG )
 if [[ -z $rrsigEntries ]]; then
         echo "CRITICAL: There is no RRSIG for the SOA of your zone."
         exit 2
