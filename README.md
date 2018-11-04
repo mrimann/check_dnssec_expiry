@@ -93,7 +93,43 @@ You can set vars.resolver to the address of a resolver to use, etc.
 
 **Please adapt the above snippets to your needs!!!** (and refer to the documentation of your monitoring system for further details).
 
+## Installation (Zabbix external check)
 
+The script can also be used as-is as a data source for a Zabbix server external checks.
+
+ * save `check_dnssec_expiry.sh` to `/usr/local/bin`
+ * create wrapper scripts in the directory where Zabbix expects external scripts ( `/usr/lib/zabbix/externalscripts` ), replace `2620:fe::fe` with the IP of the validating resolver of your preference.
+  * `zext_dnssec_sig_percentage.sh`:
+
+  ```bash
+    #!/bin/bash
+    /usr/local/bin/check_dnssec_expiry.sh -z $1 -r 2620:fe::fe | gawk 'match($$0, /sig_lifetime_percentage=([0-9]+)[^0-9]/, b) {print b[1]}'
+  ```
+
+  * `zext_dnssec_sig_seconds.sh`:
+
+  ```bash
+  #!/bin/bash
+  /usr/local/bin/check_dnssec_expiry.sh -z $1 -r 2620:fe::fe | gawk 'match($$0, /sig_lifetime=([0-9]+)\s/, a) {print a[1]}'
+  ```
+
+ * Verify that the scripts are working and returning an integer (percentage or remaining seconds).
+ ```
+ /usr/lib/zabbix/externalscripts/zext_dnssec_sig_percentage.sh switch.ch
+ 98
+ /usr/lib/zabbix/externalscripts/zext_dnssec_sig_seconds.sh switch.ch
+ 2010539
+ ```
+ * In the Zabbix GUI, create a template `DNSSEC signature expiration` and define external check items:
+  * `zext_dnssec_sig_seconds.sh[{HOSTNAME}]` (Numeric unsigned, Units `s`)
+  * `zext_dnssec_sig_percentage.sh[{HOSTNAME}]` (Numeric unsigned)
+
+
+ * Define Triggers/Alerts as usual, for example:
+
+  `{Template DNSSEC signature expiration:zext_dnssec_sig_seconds.sh[{HOSTNAME}].last(#2)}<2d`
+
+  to alert when the remaining signature lifetime falls below 2 days.
 
 ## Command Line Options:
 
