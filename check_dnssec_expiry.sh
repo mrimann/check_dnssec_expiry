@@ -100,10 +100,10 @@ fi
 
 # Check if we got warning/critical percentage values, use defaults if not
 if [[ -z $warning ]]; then
-	warning=20
+	warning="10d"
 fi
 if [[ -z $critical ]]; then
-	critical=10
+	critical="5d"
 fi
 
 # formatting to seconds
