@@ -217,6 +217,9 @@ else
 	done <<< "$rrsigEntries"
 fi
 
+expire_at=$(date -u +"%s")
+expire_at=$(($expire_at+maxRemainingLifetime))
+expire_at_string=$(date -u -d @${expire_at} +"%c")
 remaining_day_string=$(calculate_remaining_time_string $maxRemainingLifetime)
 
 # determine if we need to alert, and if so, how loud to cry, depending on warning/critial threshholds provided
