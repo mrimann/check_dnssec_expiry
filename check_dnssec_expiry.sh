@@ -17,9 +17,9 @@ usage $0 -z <zone> [-w <warning %>] [-c <critical %>] [-r <resolver>] [-f <alway
 
 	-z <zone>
 		specify zone to check
-	-w <warning %> | <warning d> | <warning h> | <warning m> | <warning s>
+	-w <warning [%]> | <warning d> | <warning h> | <warning m> | <warning s>
 		warning time left percentage or days or hours or minutes or seconds
-	-c <critical %> | <critical d> | <critical h> | <critical m> | <critical s>
+	-c <critical [%]> | <critical d> | <critical h> | <critical m> | <critical s>
 		critical time left percentage or days or hours or minutes or seconds
 	-r <resolver>
 		specify which resolver to use.

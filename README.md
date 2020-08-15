@@ -66,8 +66,8 @@ To add the command check to your Icinga2 installation, first add the following c
          required = true
          value = "$zone$"
          }
-       "-w" = "$dnssec_warn$"    // Default = 20%
-       "-c" = "$dnssec_crit$"    // Default = 10%
+       "-w" = "$dnssec_warn$"    // Default = 10d
+       "-c" = "$dnssec_crit$"    // Default = 5d
        "-r" = "$resolver$"       // Default = 8.8.8.8
        "-f" = "$failing$"        // Sets the always failing domain (to verify function of resolver). Default = dnssec-failed.org
       }
