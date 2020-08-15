@@ -83,6 +83,17 @@ calculate_time() {
 
     echo $remaining_time
 }
+# calculate seconds out of time string
+calculate_remaining_time_string() {
+    total_time=$1
+    seconds=$(($total_time % 60))
+    total_time=$((($total_time - $seconds) / 60))
+    minutes=$(($total_time % 60))
+    total_time=$((($total_time - $minutes) / 60))
+    hours=$(($total_time % 24))
+    days=$((($total_time - $hours) / 24))
+    echo "${days}d ${hours}h ${minutes}m ${seconds}s"
+}
 
 # Check if dig is available at all - fail hard if not
 pathToDig=$( which dig )
@@ -206,10 +217,7 @@ else
 	done <<< "$rrsigEntries"
 fi
 
-expire_at=$(date -u +"%s")
-expire_at=$(($expire_at+maxRemainingLifetime))
-expire_at_string=$(date -u -d @${expire_at} +"%c")
-remaining_day_string=$(date -u -d @${maxRemainingLifetime} +"%dd %Hh %Mm %Ss")
+remaining_day_string=$(calculate_remaining_time_string $maxRemainingLifetime)
 
 # determine if we need to alert, and if so, how loud to cry, depending on warning/critial threshholds provided
 if [[ $maxRemainingLifetime -lt $critical ]]; then
