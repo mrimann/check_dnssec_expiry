@@ -8,8 +8,8 @@ It covers the following cases:
 - Unsigned zones: will emit a WARNING, as we expect this check to only be actively executed against DNSSEC enabled/signed zones
 - Broken signature: will emit a CRITICAL, independent of whether the zone could be resolvable on a resolver without DNSSEC validation
 - Expiry date of the RRSIG answer: the remaining lifetime is calculated and depending on the remaining % of the total lifetime, an alert can be generated
-  - emits a CRITICAL if the remaining percentage is < 10%
-  - emits a WARNING if the remaining percentage is < 20%
+  - emits a CRITICAL if the remaining time is lower than `-w`
+  - emits a WARNING if the remaining time is lower than `-c`
   - emits an OK if none of the above match
 - If there are multiple RRSIG entries with overlapping validity time-frames, we're fine, if at least one of them fulfills the minimum remaining lifetime check
 - is configurable via command line options, see table below
@@ -66,8 +66,8 @@ To add the command check to your Icinga2 installation, first add the following c
          required = true
          value = "$zone$"
          }
-       "-w" = "$dnssec_warn$"    // Default = 20
-       "-c" = "$dnssec_crit$"    // Default = 10
+       "-w" = "$dnssec_warn$"    // Default = 10d
+       "-c" = "$dnssec_crit$"    // Default = 5d
        "-r" = "$resolver$"       // Default = 8.8.8.8
        "-f" = "$failing$"        // Sets the always failing domain (to verify function of resolver). Default = dnssec-failed.org
       }
@@ -137,8 +137,8 @@ The script can also be used as-is as a data source for a Zabbix server external 
 | --- | --- | --- | --- |
 | -h | Renders the help / usage information | no | n/a |
 | -z | Sets the zone to validate, e.g. "example.org" | yes | n/a |
-| -w | Sets the warning percentage value regarding the remainig lifetime of the signature | no | 20 |
-| -c | Sets the critical percentage value regarding the remainig lifetime of the signature | no | 10 |
+| -w | Sets the warning percentage value regarding the remainig lifetime of the signature in percent (%), days (d), hours (h), minutes (m) or seconds (s) | no | 10d |
+| -c | Sets the critical percentage value regarding the remainig lifetime of the signature in percent (%), days (d), hours (h), minutes (m) or seconds (s) | no | 5d |
 | -r | Sets the resolver to use | no | 8.8.8.8 |
 | -f | Sets the always failing domain (used to verify the proper function of the resolving server | no | dnssec-failed.org |
 | -t | Sets the DNS record type to validate, e.g. "A" | no | SOA |
@@ -164,6 +164,7 @@ Thanks for your support! (in chronological order)
 - Warren Kumari
 - Rob J. Epping
 - Thushjandan Ponnudurai
+- Fabian Fröhlich [f-froehlich.de](https://f-froehlich.de/)
 
 ## License
 

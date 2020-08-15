@@ -17,10 +17,10 @@ usage $0 -z <zone> [-w <warning %>] [-c <critical %>] [-r <resolver>] [-f <alway
 
 	-z <zone>
 		specify zone to check
-	-w <critical %>
-		warning time left percentage
-	-c <critical %>
-		critical time left percentage
+	-w <warning [%]> | <warning d> | <warning h> | <warning m> | <warning s>
+		warning time left percentage or days or hours or minutes or seconds
+	-c <critical [%]> | <critical d> | <critical h> | <critical m> | <critical s>
+		critical time left percentage or days or hours or minutes or seconds
 	-r <resolver>
 		specify which resolver to use.
 	-f <always failing domain>
@@ -59,6 +59,41 @@ while getopts ":z:w:c:r:f:h:t:" opt; do
   esac
 done
 
+# calculate seconds out of time string
+calculate_time() {
+    raw_time=$1
+    remaining_time=0
+    if [[ "$raw_time" == *"d" ]]; then
+      remaining_time=$(echo $raw_time | sed -e "s/d//g")
+      remaining_time=$(($remaining_time*24*60*60))
+    elif [[ "$raw_time" == *"h" ]]; then
+      remaining_time=$(echo $raw_time | sed -e "s/h//g")
+      remaining_time=$(($remaining_time*60*60))
+    elif [[ "$raw_time" == *"m" ]]; then
+      remaining_time=$(echo $raw_time | sed -e "s/m//g")
+      remaining_time=$(($remaining_time*60))
+    elif [[ "$raw_time" == *"s" ]]; then
+      remaining_time=$(echo $raw_time | sed -e "s/s//g")
+    elif [[ "$raw_time" == *['!'%] ]]; then
+      remaining_time=$(echo "$raw_time" | sed -e "s/\%//g")
+      remaining_time=$(($remaining_time*30/100*24*60*60))
+    else
+      remaining_time=$(($raw_time*30/100*24*60*60))
+    fi
+
+    echo $remaining_time
+}
+# calculate seconds out of time string
+calculate_remaining_time_string() {
+    total_time=$1
+    seconds=$(($total_time % 60))
+    total_time=$((($total_time - $seconds) / 60))
+    minutes=$(($total_time % 60))
+    total_time=$((($total_time - $minutes) / 60))
+    hours=$(($total_time % 24))
+    days=$((($total_time - $hours) / 24))
+    echo "${days}d ${hours}h ${minutes}m ${seconds}s"
+}
 
 # Check if dig is available at all - fail hard if not
 pathToDig=$( which dig )
@@ -76,12 +111,15 @@ fi
 
 # Check if we got warning/critical percentage values, use defaults if not
 if [[ -z $warning ]]; then
-	warning=20
+	warning="10d"
 fi
 if [[ -z $critical ]]; then
-	critical=10
+	critical="5d"
 fi
 
+# formatting to seconds
+warning=$(calculate_time $warning)
+critical=$(calculate_time $critical)
 
 # Use Google's 8.8.8.8 resolver as fallback if none is provided
 if [[ -z $resolver ]]; then
@@ -179,17 +217,19 @@ else
 	done <<< "$rrsigEntries"
 fi
 
-
-
+expire_at=$(date -u +"%s")
+expire_at=$(($expire_at+maxRemainingLifetime))
+expire_at_string=$(date -u -d @${expire_at} +"%c")
+remaining_day_string=$(calculate_remaining_time_string $maxRemainingLifetime)
 
 # determine if we need to alert, and if so, how loud to cry, depending on warning/critial threshholds provided
-if [[ $maxRemainingPercentage -lt $critical ]]; then
-	echo "CRITICAL: DNSSEC signature for $zone is very short before expiration! ($maxRemainingPercentage% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+if [[ $maxRemainingLifetime -lt $critical ]]; then
+	echo "CRITICAL: DNSSEC signature for $zone is very short before expiration! ($remaining_day_string / $maxRemainingPercentage% remaining; expire at $expire_at_string) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 2
-elif [[ $remainingPercentage -lt $warning ]]; then
-	echo "WARNING: DNSSEC signature for $zone is short before expiration! ($maxRemainingPercentage% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+elif [[ $maxRemainingLifetime -lt $warning ]]; then
+	echo "WARNING: DNSSEC signature for $zone is short before expiration! ($remaining_day_string / $maxRemainingPercentage% remaining; expire at $expire_at_string) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 1
 else
-	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired ($maxRemainingPercentage% remaining) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
+	echo "OK: DNSSEC signatures for $zone seem to be valid and not expired ($remaining_day_string / $maxRemainingPercentage% remaining; expire at $expire_at_string) | sig_lifetime=$maxRemainingLifetime  sig_lifetime_percentage=$remainingPercentage%;$warning;$critical"
 	exit 0
 fi
