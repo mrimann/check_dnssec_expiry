@@ -141,14 +141,14 @@ else
 		checkValidityOfExpirationTimestamp=$( echo $expiryDateOfSignature | egrep '[0-9]{14}')
 		if [[ -z $checkValidityOfExpirationTimestamp ]]; then
 			echo "UNKNOWN: Something went wrong while checking the expiration of the RRSIG entry - investigate please".
-			echo 3
+			exit 3
 		fi
 
 		inceptionDateOfSignature=$( echo $rrsig | awk '{print $10}')
 		checkValidityOfInceptionTimestamp=$( echo $inceptionDateOfSignature | egrep '[0-9]{14}')
 		if [[ -z $checkValidityOfInceptionTimestamp ]]; then
 			echo "UNKNOWN: Something went wrong while checking the inception date of the RRSIG entry - investigate please".
-			echo 3
+			exit 3
 		fi
 
 		# Fiddle out the expiry and inceptiondate of the signature to have a base to do some calculations afterwards
