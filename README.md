@@ -165,6 +165,7 @@ Thanks for your support! (in chronological order)
 - Rob J. Epping
 - Thushjandan Ponnudurai
 - Robin Meis [@RobinMeis](https://github.com/RobinMeis)
+- Tom Laermans [@sid3windr](https://github.com/sid3windr)
 
 ## License
 
