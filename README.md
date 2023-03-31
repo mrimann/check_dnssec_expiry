@@ -27,7 +27,7 @@ To add the check to your Icinga installation, first add the following command de
 	# 'check_dnssec_expiry' command definition
 	define command {
 		command_name	check_dnssec_expiry
-		command_line    $USER1$/check_dnssec_expiry/check_dns_expiry.sh -z $ARG1$ -r $ARG2$ -f $ARG3$
+		command_line    $USER1$/check_dnssec_expiry/check_dnssec_expiry.sh -z $ARG1$ -r $ARG2$ -f $ARG3$
 	}
 
 And second, add a service definiton *per zone* to e.g. `/etc/icinga/objects/services.cfg`:
