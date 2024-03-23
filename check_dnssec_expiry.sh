@@ -111,7 +111,7 @@ if [[ -z $checkDomainResolvableWithDnssecEnabledResolver ]]; then
 	checkDomainResolvableWithDnssecValidationExplicitelyDisabled=$(dig +short @${resolver} SOA $zone +cd)
 
 	if [[ ! -z $checkDomainResolvableWithDnssecValidationExplicitelyDisabled ]]; then
-		echo "CRITICAL: The domain $zone can be validated without DNSSEC validation - but will fail on resolvers that do validate DNSSEC."
+		echo "CRITICAL: The domain $zone can be resolved without DNSSEC validation - but will fail on resolvers that do validate DNSSEC."
 		exit 2
 	else
 		echo "CRITICAL: The domain $zone cannot be resolved via $resolver as resolver while DNSSEC validation is active."
